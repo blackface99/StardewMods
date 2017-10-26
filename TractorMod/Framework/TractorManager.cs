@@ -161,6 +161,30 @@ namespace Pathoschild.Stardew.TractorMod.Framework
             }
         }
 
+        /// <summary>Perform an action when the player activates a tile, if any.</summary>
+        /// <param name="position">The cursor position.</param>
+        /// <returns>Returns whether an action was performed.</returns>
+        public bool CheckAction(ICursorPosition position)
+        {
+            // mount tractor
+            if (!this.IsRiding && this.Static.currentLocation == Game1.currentLocation)
+            {
+                if (Utility.dista)
+
+                var tile = position.GrabTile;
+
+                Rectangle tractorBox = this.Static.GetBoundingBox();
+                Rectangle targetBox = new Rectangle((int)(tile.X * Game1.tileSize), (int)(tile.Y * Game1.tileSize), Game1.tileSize, Game1.tileSize);
+                if (tractorBox.Intersects(targetBox))
+                {
+                    this.SetMounted(true);
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
 
         /*********
         ** Private methods

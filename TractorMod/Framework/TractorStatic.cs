@@ -2,11 +2,12 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.Xna.Framework;
 using StardewValley;
+using StardewValley.Monsters;
 
 namespace Pathoschild.Stardew.TractorMod.Framework
 {
     /// <summary>An in-game tractor which only serves to display in the world.</summary>
-    internal sealed class TractorStatic : NPC
+    internal sealed class TractorStatic : Monster
     {
         /*********
         ** Properties
@@ -25,6 +26,7 @@ namespace Pathoschild.Stardew.TractorMod.Framework
         /// <param name="sprite">The animated tractor sprite.</param>
         /// <param name="onMount">The callback to invoke when the player mounts the tractor.</param>
         public TractorStatic(string name, int tileX, int tileY, AnimatedSprite sprite, Action onMount)
+            : base(name, new Vector2(tileX, tileY))
         {
             // set basic info
             this.name = name;
@@ -43,10 +45,17 @@ namespace Pathoschild.Stardew.TractorMod.Framework
         /// <summary>Get the bounding box for collision checks.</summary>
         public override Rectangle GetBoundingBox()
         {
+            float x = this.position.X;
+            float y = this.position.Y;
+            int width = this.sprite.spriteWidth * Game1.pixelZoom;
+            int height = this.sprite.spriteHeight * Game1.pixelZoom;
+
+            return new Rectangle((int)x, (int)y, width, height);
+
             Rectangle boundingBox = base.GetBoundingBox();
-            if ((this.facingDirection == 0 || this.facingDirection == 2))
-                boundingBox.Inflate(-Game1.tileSize / 2 - Game1.pixelZoom, 0);
-            return boundingBox;
+            //if ((this.facingDirection == 0 || this.facingDirection == 2))
+            //    boundingBox.Inflate(-Game1.tileSize / 2 - Game1.pixelZoom, 0);
+            //return boundingBox;
         }
 
         /// <summary>Perform an action when the player activates the tractor.</summary>
@@ -63,6 +72,10 @@ namespace Pathoschild.Stardew.TractorMod.Framework
         /// <param name="location">The location containing the tractor.</param>
         public override void update(GameTime time, GameLocation location)
         {
+            // disable damage
+            this.health = this.maxHealth;
+            this.invincibleCountdown = 10;
+
             // don't do any NPC stuff
         }
 

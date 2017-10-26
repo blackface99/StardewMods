@@ -93,10 +93,17 @@ namespace Pathoschild.Stardew.TractorMod
                 new WateringCanAttachment()
             };
 
+            // hook content
+            {
+                var contentLoader = new TractorContentLoader();
+                helper.Content.AssetEditors.Add(contentLoader);
+                helper.Content.AssetLoaders.Add(contentLoader);
+            }
+
             // hook events
             TimeEvents.AfterDayStarted += this.TimeEvents_AfterDayStarted;
             SaveEvents.BeforeSave += this.SaveEvents_BeforeSave;
-            if (this.Config.HighlightRadius)
+            //if (this.Config.HighlightRadius)
                 GraphicsEvents.OnPostRenderEvent += this.GraphicsEvents_OnPostRenderEvent;
             MenuEvents.MenuChanged += this.MenuEvents_MenuChanged;
             InputEvents.ButtonPressed += this.InputEvents_ButtonPressed;
@@ -142,6 +149,12 @@ namespace Pathoschild.Stardew.TractorMod
         {
             if (Context.IsWorldReady && Game1.activeClickableMenu == null && this.Config.HighlightRadius && this.Tractor?.IsRiding == true)
                 this.Tractor?.DrawRadius(Game1.spriteBatch);
+
+            if (this.Tractor != null)
+            {
+                var box = this.Tractor.Current.GetBoundingBox();
+                Game1.spriteBatch.DrawLine(box.X - Game1.viewport.X, box.Y - Game1.viewport.Y, new Vector2(box.Width, box.Height), Color.Red * 0.5f);
+            }
         }
 
         /// <summary>The event called after a new menu is opened.</summary>
@@ -181,9 +194,16 @@ namespace Pathoschild.Stardew.TractorMod
         /// <param name="e">The event arguments.</param>
         private void InputEvents_ButtonPressed(object sender, EventArgsInput e)
         {
-            // summon tractor
-            if (this.Config.Controls.SummonTractor.Contains(e.Button))
-                this.Tractor?.SetLocation(Game1.currentLocation, Game1.player.getTileLocation());
+            if (this.Tractor?.IsRiding == false)
+            {
+                // summon tractor
+                if (this.Tractor?.IsRiding == false && this.Config.Controls.SummonTractor.Contains(e.Button))
+                    this.Tractor.SetLocation(Game1.currentLocation, Game1.player.getTileLocation());
+
+                // mount tractor
+                else if (e.IsActionButton)
+                    this.Tractor.CheckAction(e.Cursor);
+            }
         }
 
         /// <summary>The event called when the game updates (roughly sixty times per second).</summary>
